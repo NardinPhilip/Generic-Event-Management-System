@@ -1,0 +1,475 @@
+{% extends "QrAttendanceApp/base.html" %}
+{% load static %}
+
+{% block title %}{{ event.event_name }} - Details{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .event-form-card {
+            max-width: 900px;
+            margin: 0 auto;
+            border-radius: 8px;
+            background: #fff;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .event-form-card h2 {
+            font-size: 1.75rem;
+            font-weight: bold;
+        }
+        .badge {
+            font-size: 0.9em;
+        }
+        /* Tabs styling */
+        .nav-tabs {
+            border-bottom: 1px solid #dee2e6;
+            margin-top: 1.5rem;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-tabs .nav-link.active {
+            color: #007bff;
+            border-bottom: 2px solid #007bff;
+            background: none;
+        }
+        .nav-tabs .nav-link:hover {
+            color: #0056b3;
+            border-bottom: 2px solid #0056b3;
+        }
+        .tab-content {
+            padding: 1rem 0;
+        }
+        /* Table styling */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .table th, .table td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border: 1px solid #dee2e6;
+            text-align: left;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+        }
+        /* Arabic text support */
+        .arabic-text {
+            direction: rtl;
+            unicode-bidi: embed;
+            font-family: 'Arial', 'Tahoma', 'Noto Sans Arabic', 'sans-serif';
+            text-align: right;
+        }
+        /* QR code styling */
+        .qr-image {
+            max-width: 100px;
+            max-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .no-qr {
+            color: #6c757d;
+            font-style: italic;
+        }
+        /* Button styling */
+        .btn-primary {
+            background-color: #28a745;
+            border-color: #28a745;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        /* Filter dropdown */
+        .filter-section {
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .filter-section label {
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        .filter-section select {
+            width: 200px;
+            padding: 0.375rem 0.75rem;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        /* QR scanner styling */
+        #qr-reader {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+        }
+        .qr-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        /* Modal styling */
+        .modal-content {
+            border-radius: 8px;
+        }
+        .modal-header {
+            background-color: #007bff;
+            color: white;
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .event-form-card { padding: 1rem; }
+            .qr-image { max-width: 80px; max-height: 80px; }
+            .filter-section select { width: 100%; }
+            #qr-reader { max-width: 100%; }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center fw-bold">{{ event.event_name }}</h2>
+
+    <div class="card event-form-card">
+        <p><strong>Description:</strong> {{ event.event_description|default:"No description" }}</p>
+        <p><strong>Status:</strong> 
+            <span class="badge bg-{% if event.status == 'Ongoing' %}warning{% elif event.status == 'Completed' %}success{% elif event.status == 'Cancelled' %}danger{% else %}secondary{% endif %}">
+                {{ event.status }}
+            </span>
+        </p>
+
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs" id="eventTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="attendees-tab" data-bs-toggle="tab" href="#attendees" role="tab" aria-controls="attendees" aria-selected="true">Attendees</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="timetable-tab" data-bs-toggle="tab" href="#timetable" role="tab" aria-controls="timetable" aria-selected="false">Timetable</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="attendance-summary-tab" data-bs-toggle="tab" href="#attendance-summary" role="tab" aria-controls="attendance-summary" aria-selected="false">Attendance Summary</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="scan-qr-tab" data-bs-toggle="tab" href="#scan-qr" role="tab" aria-controls="scan-qr" aria-selected="false">Scan QR</a>
+            </li>
+        </ul>
+
+        <!-- Tabs Content -->
+        <div class="tab-content" id="eventTabsContent">
+            <!-- Attendees Tab -->
+            <div class="tab-pane fade show active" id="attendees" role="tabpanel" aria-labelledby="attendees-tab">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-semibold mb-0">Attendees List</h5>
+                    <a href="{% url 'download_qr_codes' event.id %}" class="btn btn-primary">Download QR Codes</a>
+                </div>
+
+                <!-- Filter by Job Title -->
+                <div class="filter-section">
+                    <label for="job_filter">Filter by Job Title:</label>
+                    <select id="job_filter" name="job_filter" onchange="window.location.href='{% url 'event_detail' event.id %}?job_filter='+this.value">
+                        <option value="">All</option>
+                        {% for job_title in job_titles %}
+                            <option value="{{ job_title }}" {% if job_filter == job_title %}selected{% endif %}>{{ job_title|default:"N/A" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Job Title</th>
+                                <th>QR Code</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for attendance in attendees %}
+                                <tr>
+                                    <td class="arabic-text">{{ attendance.attendee.attendee_name|default:"N/A" }}</td>
+                                    <td class="arabic-text">{{ attendance.attendee.attendee_job_title|default:"N/A" }}</td>
+                                    <td>
+                                        {% if attendance.attendee.qr_code %}
+                                            <img src="data:image/png;base64,{{ attendance.attendee.get_qr_code_image }}" class="qr-image" alt="QR Code for {{ attendance.attendee.attendee_name }}">
+                                        {% else %}
+                                            <span class="no-qr">No QR Code</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-muted">No attendees registered yet.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Timetable Tab -->
+            <div class="tab-pane fade" id="timetable" role="tabpanel" aria-labelledby="timetable-tab">
+                <h5 class="fw-semibold mb-3">Event Schedule</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date and Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for datetime in time_slots %}
+                                <tr>
+                                    <td>{{ datetime.event_datetime }}</td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td class="text-muted">No schedule set.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Attendance Summary Tab -->
+            <div class="tab-pane fade" id="attendance-summary" role="tabpanel" aria-labelledby="attendance-summary-tab">
+                <h5 class="fw-semibold mb-3">Attendance Summary</h5>
+                {% if event.status in 'Ongoing' or event.status in 'Completed' %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Count</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Present</td>
+                                    <td>{{ total_present }}</td>
+                                    <td>{{ attendance_ratio }}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Absent</td>
+                                    <td>{{ total_absent }}</td>
+                                    <td>{{ total_absent|floatformat:2 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td>Late</td>
+                                    <td>{{ late_count }}</td>
+                                    <td>{{ late_count|floatformat:2 }}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="mt-3">Total Attendees: {{ attendees|length }}</p>
+                {% else %}
+                    <p class="text-muted">Attendance summary is only available for Ongoing or Completed events.</p>
+                {% endif %}
+            </div>
+
+            <!-- Scan QR Tab -->
+            <div class="tab-pane fade" id="scan-qr" role="tabpanel" aria-labelledby="scan-qr-tab">
+                <h5 class="fw-semibold mb-3">Scan QR Code</h5>
+                <div id="qr-reader"></div>
+                <div id="qr-result" class="qr-result">
+                    <p>Scan a QR code to mark attendance.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Attendance Confirmation Modal -->
+    <div class="modal fade" id="attendanceModal" tabindex="-1" aria-labelledby="attendanceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="attendanceModalLabel">Confirm Attendance</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to mark <strong id="modalAttendeeName"></strong> as <strong>Present</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmAttendanceBtn">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- Load Google Fonts for Arabic support -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
+    <!-- Ensure Bootstrap's JS for tabs and modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Load html5-qrcode library for QR scanning -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const qrReader = new Html5Qrcode("qr-reader");
+            let cameraStarted = false;
+            let scannedQrCode = null;
+
+            const scanQrTab = document.getElementById('scan-qr-tab');
+            const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+            const confirmBtn = document.getElementById('confirmAttendanceBtn');
+
+            scanQrTab.addEventListener('shown.bs.tab', function () {
+                if (!cameraStarted) {
+                    console.log("Attempting to start QR scanner...");
+                    qrReader.getCameras().then(cameras => {
+                        console.log("Available cameras:", cameras);
+                        if (cameras.length === 0) {
+                            document.getElementById('qr-result').innerHTML = `<p>Error: No cameras found on this device.</p>`;
+                            return;
+                        }
+                        qrReader.start(
+                            { facingMode: "environment" },
+                            { fps: 10, qrbox: { width: 250, height: 250 } },
+                            (decodedText, decodedResult) => {
+                                console.log("QR code scanned:", decodedText);
+                                scannedQrCode = decodedText;
+                                document.getElementById('qr-result').innerHTML = `<p>QR Code Scanned: ${decodedText}</p>`;
+                                qrReader.stop().then(() => {
+                                    cameraStarted = false;
+                                    console.log("QR scanner stopped after successful scan");
+                                    // Fetch attendee name to display in modal
+                                    fetchAttendeeName(decodedText);
+                                }).catch(err => {
+                                    console.error("Error stopping QR scanner:", err);
+                                });
+                            },
+                            (errorMessage) => {
+                                console.log("Scan error:", errorMessage);
+                            }
+                        ).then(() => {
+                            cameraStarted = true;
+                            console.log("QR scanner started successfully");
+                        }).catch(err => {
+                            console.error("Error starting QR scanner:", err);
+                            document.getElementById('qr-result').innerHTML = `<p>Error: Could not access camera. ${err.message || err}</p>`;
+                        });
+                    }).catch(err => {
+                        console.error("Error accessing cameras:", err);
+                        document.getElementById('qr-result').innerHTML = `<p>Error: Could not access cameras. ${err.message || err}</p>`;
+                    });
+                }
+            });
+
+            scanQrTab.addEventListener('hidden.bs.tab', function () {
+                if (cameraStarted) {
+                    console.log("Stopping QR scanner...");
+                    qrReader.stop().then(() => {
+                        cameraStarted = false;
+                        console.log("QR scanner stopped successfully");
+                    }).catch(err => {
+                        console.error("Error stopping QR scanner:", err);
+                    });
+                }
+            });
+
+            function fetchAttendeeName(qrCode) {
+                fetch(`/event/{{ event.id }}/attendee_name/?qr_code=${encodeURIComponent(qrCode)}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('modalAttendeeName').textContent = data.attendee_name;
+                        modal.show();
+                    } else {
+                        document.getElementById('qr-result').innerHTML += `<p>Error: ${data.error}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching attendee name:', error);
+                    document.getElementById('qr-result').innerHTML += `<p>Error fetching attendee name: ${error.message}</p>`;
+                });
+            }
+
+            confirmBtn.addEventListener('click', function () {
+                modal.hide();
+                markAttendance(scannedQrCode);
+            });
+
+            function markAttendance(qrCode) {
+                console.log("Marking attendance for QR code:", qrCode);
+                const csrfToken = getCookie('csrftoken');
+                if (!csrfToken) {
+                    console.error("CSRF token not found");
+                    document.getElementById('qr-result').innerHTML += `<p>Error: CSRF token not found.</p>`;
+                    return;
+                }
+                fetch(`/event/{{ event.id }}/mark_attendance/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ qr_code: qrCode })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error("HTTP error:", response.status, response.statusText);
+                        return response.text();
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (typeof data === 'string') {
+                        console.error("Received HTML response:", data.substring(0, 100));
+                        document.getElementById('qr-result').innerHTML += `<p>Error: Server returned an unexpected response.</p>`;
+                    } else {
+                        console.log("Attendance marking response:", data);
+                        if (data.success) {
+                            document.getElementById('qr-result').innerHTML += `<p>Attendance marked for ${data.attendee_name} as ${data.status}.</p>`;
+                        } else {
+                            document.getElementById('qr-result').innerHTML += `<p>Error: ${data.error}</p>`;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error marking attendance:', error);
+                    document.getElementById('qr-result').innerHTML += `<p>Error marking attendance: ${error.message}</p>`;
+                });
+            }
+        });
+    </script>
+{% endblock %}

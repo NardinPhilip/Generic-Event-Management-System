@@ -1,0 +1,194 @@
+{% extends "QrAttendanceApp/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+
+{% block title %}Event List - QR Attendance{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .event-form-card { max-width: 900px; margin: 0 auto; border-radius: 8px; background: #fff; transition: box-shadow 0.3s ease; }
+        .event-form-card:hover { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        .search-container { max-width: 600px; margin: 0 auto 2.5rem; }
+        .event-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .event-table th, .event-table td { vertical-align: middle; }
+        .errorlist { color: #dc3545; font-size: 0.9em; margin-top: 0.25rem; }
+        #event-datetime-table th, #event-datetime-table td { padding: 0.5rem; }
+        #add-datetime { transition: background-color 0.2s ease; }
+        #add-datetime:hover { background-color: #5a6268; }
+        .remove-datetime { width: 100%; }
+        .datetime-entry input { width: 100%; border-radius: 4px; }
+        @media (max-width: 768px) {
+            .event-form-card { padding: 1rem; }
+            .search-container { margin-bottom: 1.5rem; }
+        }
+        .collapse-form { display: none; }
+        .collapse-form.show { display: block; }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <h2 class="mb-4 text-center fw-bold">Event Management</h2>
+
+    <div class="search-container">
+        <form method="GET" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ request.GET.search|default:'' }}" aria-label="Search events" aria-describedby="search-button">
+                <button type="submit" class="btn btn-primary" id="search-button"><i class="bi bi-search"></i> Search</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="text-center mb-4">
+        <button class="btn btn-primary" type="button" id="toggle-create-form">
+            <i class="bi bi-plus-circle"></i> Create New Event
+        </button>
+    </div>
+
+    <div class="card shadow-sm p-4 event-form-card collapse-form" id="create-event-form">
+        <h4 class="fw-semibold">Create New Event</h4>
+        <form method="POST" enctype="multipart/form-data" id="event-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field|add_class:"form-control" }}
+                {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+                {% if field.errors %}<ul class="errorlist list-unstyled">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+            </div>
+            {% endfor %}
+
+            <h5 class="mt-4 fw-semibold">Event Schedule</h5>
+            {{ formset.non_form_errors }}
+            {{ formset.management_form }}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="event-datetime-table">
+                    <thead class="table-light">
+                        <tr><th scope="col">Date and Time</th><th scope="col">Action</th></tr>
+                    </thead>
+                    <tbody id="datetime-table-body">
+                        {% for subform in formset %}
+                            <tr class="datetime-entry">
+                                <td>
+                                    {{ subform.id }}
+                                    {{ subform.event_datetime|add_class:"form-control" }}
+                                    {{ subform.event_datetime.errors }}
+                                </td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime" aria-label="Remove this date and time">Remove</button></td>
+                            </tr>
+                        {% empty %}
+                            <tr class="datetime-entry empty-form" style="display: none;">
+                                <td><input type="datetime-local" class="form-control" name="eventdatetime_set-__prefix__-event_datetime" aria-label="Event date and time"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime" aria-label="Remove this date and time">Remove</button></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button type="button" id="add-datetime" class="btn btn-secondary"><i class="bi bi-plus-circle"></i> Add Date & Time</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Create Event</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-5">
+        <h3 class="fw-semibold">Existing Events</h3>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered event-table">
+                <thead class="table-light">
+                    <tr><th scope="col">Event Name</th><th scope="col">Description</th><th scope="col">Status</th><th scope="col">Action</th></tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>{{ event.event_name|title }}</td>
+                            <td>{{ event.event_description|default:"No description" }}</td>
+                            <td><span class="badge bg-{% if event.status == 'Ongoing' %}warning{% elif event.status == 'Completed' %}success{% elif event.status == 'Cancelled' %}danger{% else %}secondary{% endif %}">{{ event.status }}</span></td>
+                            <td><a href="{% url 'event_detail' event.id %}" class="btn btn-primary btn-sm"><i class="bi bi-eye"></i> View Details</a></td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="4" class="text-center text-muted">No events found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Toggle Create Event Form
+        $('#toggle-create-form').on('click', function () {
+            $('#create-event-form').toggleClass('show');
+        });
+
+        // Add Date & Time Logic
+        const $addButton = $("#add-datetime");
+        const $tableBody = $("#datetime-table-body");
+        const $totalForms = $("#id_eventdatetime_set-TOTAL_FORMS");
+
+        // Debug: Check if TOTAL_FORMS exists
+        if ($totalForms.length === 0) {
+            console.error("TOTAL_FORMS input not found in DOM");
+        } else {
+            console.log("TOTAL_FORMS found, initial value:", $totalForms.val());
+        }
+
+        $addButton.on("click", function () {
+            console.log("Add Date & Time clicked");
+            let formIdx = parseInt($totalForms.val()) || 0;
+            console.log("Current form index:", formIdx);
+
+            const $newRow = $(".empty-form").clone().removeClass("empty-form").show();
+            $newRow.find("input").each(function () {
+                const oldName = $(this).attr("name");
+                const newName = oldName.replace("__prefix__", formIdx);
+                $(this).attr("name", newName).attr("id", "id_" + newName);
+                console.log("New input name:", newName);
+            });
+
+            $tableBody.append($newRow);
+            $totalForms.val(formIdx + 1);
+            console.log("Updated TOTAL_FORMS:", $totalForms.val());
+            console.log("New row added, table rows:", $tableBody.find("tr").length);
+            $newRow.find("input").first().focus();
+        });
+
+        // Remove Date & Time Logic with Debugging
+        $tableBody.on("click", ".remove-datetime", function (e) {
+            e.preventDefault(); // Prevent any default behavior
+            console.log("Remove clicked"); // Confirm event triggers
+            const $row = $(this).closest("tr");
+            console.log("Row to remove found:", $row.length > 0 ? "Yes" : "No"); // Check if row is found
+            const currentCount = parseInt($totalForms.val()) || 0;
+            console.log("Current TOTAL_FORMS before remove:", currentCount);
+            if (currentCount > 0) {
+                $row.remove();
+                $totalForms.val(currentCount - 1);
+                console.log("Row removed, updated TOTAL_FORMS:", $totalForms.val());
+                console.log("Remaining table rows:", $tableBody.find("tr").length);
+            } else {
+                console.log("No rows to remove (TOTAL_FORMS is 0)");
+            }
+        });
+
+        $("#event-form").on("submit", function (e) {
+            const rowCount = $tableBody.find(".datetime-entry:not(.empty-form)").length;
+            console.log("Row count on submit:", rowCount);
+            if (rowCount === 0) {
+                e.preventDefault();
+                alert("Please add at least one date and time for the event.");
+                $addButton.focus();
+            }
+        });
+    });
+</script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+{% endblock %}
