@@ -59,7 +59,7 @@
                 {% if field.errors %}<ul class="errorlist list-unstyled">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
             </div>
             {% endfor %}
-
+        
             <h5 class="mt-4 fw-semibold">Event Schedule</h5>
             {{ formset.non_form_errors }}
             {{ formset.management_form }}
@@ -76,12 +76,12 @@
                                     {{ subform.event_datetime|add_class:"form-control" }}
                                     {{ subform.event_datetime.errors }}
                                 </td>
-                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime" aria-label="Remove this date and time">Remove</button></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime">Remove</button></td>
                             </tr>
                         {% empty %}
                             <tr class="datetime-entry empty-form" style="display: none;">
-                                <td><input type="datetime-local" class="form-control" name="eventdatetime_set-__prefix__-event_datetime" aria-label="Event date and time"></td>
-                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime" aria-label="Remove this date and time">Remove</button></td>
+                                <td><input type="datetime-local" class="form-control" name="eventdatetime_set-__prefix__-event_datetime"></td>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-datetime">Remove</button></td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -132,7 +132,7 @@
         // Add Date & Time Logic
         const $addButton = $("#add-datetime");
         const $tableBody = $("#datetime-table-body");
-        const $totalForms = $("#id_eventdatetime_set-TOTAL_FORMS");
+        const $totalForms = $("#id_eventdatetime_set-TOTAL_FORMS");  // Correct prefix
 
         // Debug: Check if TOTAL_FORMS exists
         if ($totalForms.length === 0) {
@@ -163,10 +163,10 @@
 
         // Remove Date & Time Logic with Debugging
         $tableBody.on("click", ".remove-datetime", function (e) {
-            e.preventDefault(); // Prevent any default behavior
-            console.log("Remove clicked"); // Confirm event triggers
+            e.preventDefault();
+            console.log("Remove clicked");
             const $row = $(this).closest("tr");
-            console.log("Row to remove found:", $row.length > 0 ? "Yes" : "No"); // Check if row is found
+            console.log("Row to remove found:", $row.length > 0 ? "Yes" : "No");
             const currentCount = parseInt($totalForms.val()) || 0;
             console.log("Current TOTAL_FORMS before remove:", currentCount);
             if (currentCount > 0) {

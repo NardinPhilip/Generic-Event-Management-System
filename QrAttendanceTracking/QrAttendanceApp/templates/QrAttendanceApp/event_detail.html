@@ -6,135 +6,101 @@
 {% block extra_css %}
     <style>
         .event-form-card {
-            max-width: 900px;
-            margin: 0 auto;
-            border-radius: 8px;
+            padding: 2rem;
             background: #fff;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
         }
         .event-form-card h2 {
-            font-size: 1.75rem;
-            font-weight: bold;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
         }
-        .badge {
-            font-size: 0.9em;
-        }
-        /* Tabs styling */
         .nav-tabs {
-            border-bottom: 1px solid #dee2e6;
-            margin-top: 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+            margin-bottom: 1.5rem;
         }
         .nav-tabs .nav-link {
+            padding: 0.75rem 1.5rem;
             color: #495057;
             font-weight: 500;
-            padding: 0.5rem 1rem;
-            border: none;
-            border-bottom: 2px solid transparent;
+            border-radius: 8px 8px 0 0;
+            transition: all 0.3s ease;
         }
         .nav-tabs .nav-link.active {
-            color: #007bff;
-            border-bottom: 2px solid #007bff;
-            background: none;
+            background-color: #0d4f96;
+            color: white;
+            border-color: #007bff;
         }
         .nav-tabs .nav-link:hover {
-            color: #0056b3;
-            border-bottom: 2px solid #0056b3;
+            background-color: #f1f3f5;
+            color: #007bff;
         }
-        .tab-content {
-            padding: 1rem 0;
-        }
-        /* Table styling */
         .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-        .table th, .table td {
-            padding: 0.75rem;
-            vertical-align: middle;
-            border: 1px solid #dee2e6;
-            text-align: left;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
         .table th {
+            background-color: #124c8a;
+            color: white;
+            font-weight: 500;
+        }
+        .table td, .table th {
+            padding: 1rem;
+            border: none;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .table tr:hover {
             background-color: #f8f9fa;
-            font-weight: 500;
         }
-        /* Arabic text support */
-        .arabic-text {
-            direction: rtl;
-            unicode-bidi: embed;
-            font-family: 'Arial', 'Tahoma', 'Noto Sans Arabic', 'sans-serif';
-            text-align: right;
-        }
-        /* QR code styling */
         .qr-image {
-            max-width: 100px;
-            max-height: 100px;
-            border: 1px solid #ddd;
+            width: 80px;
+            height: 80px;
             border-radius: 4px;
+            border: 1px solid #ddd;
         }
-        .no-qr {
-            color: #6c757d;
-            font-style: italic;
-        }
-        /* Button styling */
-        .btn-primary {
-            background-color: #28a745;
-            border-color: #28a745;
-            padding: 0.5rem 1rem;
-            font-weight: 500;
-        }
-        .btn-primary:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
-        /* Filter dropdown */
         .filter-section {
-            margin-top: 1rem;
-            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
         }
         .filter-section label {
             font-weight: 500;
-            margin-right: 0.5rem;
+            color: #2c3e50;
         }
-        .filter-section select {
-            width: 200px;
-            padding: 0.375rem 0.75rem;
-            border-radius: 4px;
+        .filter-section select, .filter-section input {
+            border-radius: 6px;
             border: 1px solid #ced4da;
+            padding: 0.5rem 1rem;
         }
-        /* QR scanner styling */
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border: 2px solid #007bff;
-            border-radius: 8px;
+        .pagination .page-link {
+            border-radius: 6px;
+            color: #007bff;
+            margin: 0 0.2rem;
         }
-        .qr-result {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            text-align: center;
-        }
-        /* Modal styling */
-        .modal-content {
-            border-radius: 8px;
-        }
-        .modal-header {
+        .pagination .page-item.active .page-link {
             background-color: #007bff;
+            border-color: #0b4d95;
             color: white;
         }
-        /* Responsive design */
+        .edit-mode .display-mode-only { display: none; }
+        .edit-mode .edit-mode-only { display: inline-block; }
+        .display-mode-only { display: inline-block; }
+        .edit-mode-only { display: none; }
+        .select2-container--default .select2-selection--multiple,
+        .select2-container--default .select2-selection--single {
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+        }
         @media (max-width: 768px) {
             .event-form-card { padding: 1rem; }
-            .qr-image { max-width: 80px; max-height: 80px; }
-            .filter-section select { width: 100%; }
-            #qr-reader { max-width: 100%; }
+            .table td, .table th { padding: 0.75rem; }
+            .qr-image { width: 60px; height: 60px; }
+            .filter-section { flex-direction: column; }
         }
     </style>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock %}
 
 {% block content %}
@@ -157,64 +123,170 @@
             <li class="nav-item">
                 <a class="nav-link" id="timetable-tab" data-bs-toggle="tab" href="#timetable" role="tab" aria-controls="timetable" aria-selected="false">Timetable</a>
             </li>
+            {% if event.status == 'Ongoing' or event.status == 'Completed' %}
             <li class="nav-item">
                 <a class="nav-link" id="attendance-summary-tab" data-bs-toggle="tab" href="#attendance-summary" role="tab" aria-controls="attendance-summary" aria-selected="false">Attendance Summary</a>
             </li>
+            {% endif %}
+            {% if event.status == 'Ongoing' %}
             <li class="nav-item">
                 <a class="nav-link" id="scan-qr-tab" data-bs-toggle="tab" href="#scan-qr" role="tab" aria-controls="scan-qr" aria-selected="false">Scan QR</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="add-attendee-tab" data-bs-toggle="tab" href="#add-attendee" role="tab" aria-controls="add-attendee" aria-selected="false">Add Attendee</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="attendance-form-tab" data-bs-toggle="tab" href="#attendance-form-tab-pane" role="tab" aria-controls="attendance-form-tab-pane" aria-selected="false">Attendance Form</a>
+            </li>
+            {% endif %}
+            <li class="nav-item">
+                <a class="nav-link" id="materials-tab" data-bs-toggle="tab" href="#materials" role="tab" aria-controls="materials" aria-selected="false">Event Materials</a>
             </li>
         </ul>
 
         <!-- Tabs Content -->
         <div class="tab-content" id="eventTabsContent">
-            <!-- Attendees Tab -->
+            <!-- Updated Attendees Tab -->
             <div class="tab-pane fade show active" id="attendees" role="tabpanel" aria-labelledby="attendees-tab">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-semibold mb-0">Attendees List</h5>
-                    <a href="{% url 'download_qr_codes' event.id %}" class="btn btn-primary">Download QR Codes</a>
-                </div>
+                <h5 class="fw-semibold mb-3">Attendees</h5>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                {% if attendees %}
+                    <!-- Search and Filter -->
+                    <form method="get" class="filter-section d-flex gap-3 flex-wrap">
+                        <div>
+                            <label for="search">Search:</label>
+                            <input type="text" name="search" id="search" value="{{ search_query }}" class="form-control" placeholder="Name or Job Title">
+                        </div>
+                        <div>
+                            <label for="job_filter">Filter by Job Title:</label>
+                            <select name="job_filter" id="job_filter" class="form-select" onchange="this.form.submit()">
+                                <option value="">All Job Titles</option>
+                                {% for title in job_titles %}
+                                    <option value="{{ title }}" {% if job_filter == title %}selected{% endif %}>{{ title|default:"None" }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-4">Apply</button>
+                    </form>
 
-                <!-- Filter by Job Title -->
-                <div class="filter-section">
-                    <label for="job_filter">Filter by Job Title:</label>
-                    <select id="job_filter" name="job_filter" onchange="window.location.href='{% url 'event_detail' event.id %}?job_filter='+this.value">
-                        <option value="">All</option>
-                        {% for job_title in job_titles %}
-                            <option value="{{ job_title }}" {% if job_filter == job_title %}selected{% endif %}>{{ job_title|default:"N/A" }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
+                    <!-- QR Code Download Section -->
+                    <form method="get" action="{% url 'download_qr_code' event.id %}" class="filter-section d-flex gap-3 flex-wrap">
+                        <div>
+                            <label for="attendee_select_qr">Download QR Code(s):</label>
+                            <select name="attendee_ids" id="attendee_select_qr" class="form-select" multiple>
+                                <option value="">-- Select Attendees (Leave blank for all) --</option>
+                                {% for attendance in attendees %}
+                                    <option value="{{ attendance.attendee.id }}">{{ attendance.attendee.attendee_name }} ({{ attendance.attendee.attendee_job_title|default:"N/A" }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-4">Download</button>
+                    </form>
 
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Name</th>
-                                <th>Job Title</th>
-                                <th>QR Code</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for attendance in attendees %}
+                    <!-- Editable Attendees Table -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-light">
                                 <tr>
-                                    <td class="arabic-text">{{ attendance.attendee.attendee_name|default:"N/A" }}</td>
-                                    <td class="arabic-text">{{ attendance.attendee.attendee_job_title|default:"N/A" }}</td>
+                                    <th>Name</th>
+                                    <th>Job Title</th>
+                                    <th>Status</th>
+                                    <th>QR Code</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for attendance in attendees %}
+                                <tr id="attendee-{{ attendance.attendee.id }}">
                                     <td>
-                                        {% if attendance.attendee.qr_code %}
-                                            <img src="data:image/png;base64,{{ attendance.attendee.get_qr_code_image }}" class="qr-image" alt="QR Code for {{ attendance.attendee.attendee_name }}">
-                                        {% else %}
-                                            <span class="no-qr">No QR Code</span>
-                                        {% endif %}
+                                        <span class="display-mode-only">{{ attendance.attendee.attendee_name }}</span>
+                                        <input type="text" name="attendee_name" value="{{ attendance.attendee.attendee_name }}" class="form-control edit-mode-only" maxlength="50" required>
+                                    </td>
+                                    <td>
+                                        <span class="display-mode-only">{{ attendance.attendee.attendee_job_title|default:"N/A" }}</span>
+                                        <input type="text" name="attendee_job_title" value="{{ attendance.attendee.attendee_job_title|default:'' }}" class="form-control edit-mode-only" maxlength="50">
+                                    </td>
+                                    <td>{{ attendance.status }}</td>
+                                    <td>
+                                        <img src="data:image/png;base64,{{ attendance.attendee.get_qr_code_image }}" alt="QR Code" class="qr-image">
+                                    </td>
+                                    <td>
+                                        <form method="post" class="edit-form d-inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="edit_attendee" value="1">
+                                            <input type="hidden" name="attendee_id" value="{{ attendance.attendee.id }}">
+                                            <input type="hidden" name="attendee_name" class="attendee-name-hidden">
+                                            <input type="hidden" name="attendee_job_title" class="attendee-job-title-hidden">
+                                            <button type="button" class="btn btn-sm btn-primary toggle-btn" data-state="edit">Edit</button>
+                                        </form>
                                     </td>
                                 </tr>
-                            {% empty %}
-                                <tr>
-                                    <td colspan="3" class="text-muted">No attendees registered yet.</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Improved Pagination -->
+                    <nav aria-label="Attendees pagination">
+                        <ul class="pagination">
+                            {% if page_obj.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                                        <span aria-hidden="true">«</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">«</span></li>
+                            {% endif %}
+
+                            {% if page_obj.paginator.num_pages <= 7 %}
+                                {% for num in page_obj.paginator.page_range %}
+                                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                        <a class="page-link" href="?page={{ num }}{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                {% if page_obj.number > 4 %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">1</a>
+                                    </li>
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if num >= page_obj.number|add:-3 and num <= page_obj.number|add:3 %}
+                                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                            <a class="page-link" href="?page={{ num }}{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.number < page_obj.paginator.num_pages|add:-3 %}
+                                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ page_obj.paginator.num_pages }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if page_obj.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if job_filter %}&job_filter={{ job_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                                        <span aria-hidden="true">»</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled"><span class="page-link">»</span></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% else %}
+                    <p class="text-muted">No attendees registered for this event.</p>
+                {% endif %}
             </div>
 
             <!-- Timetable Tab -->
@@ -223,19 +295,13 @@
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered">
                         <thead class="table-light">
-                            <tr>
-                                <th>Date and Time</th>
-                            </tr>
+                            <tr><th>Date and Time</th></tr>
                         </thead>
                         <tbody>
                             {% for datetime in time_slots %}
-                                <tr>
-                                    <td>{{ datetime.event_datetime }}</td>
-                                </tr>
+                                <tr><td>{{ datetime.event_datetime }}</td></tr>
                             {% empty %}
-                                <tr>
-                                    <td class="text-muted">No schedule set.</td>
-                                </tr>
+                                <tr><td class="text-muted">No schedule set.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
@@ -245,15 +311,11 @@
             <!-- Attendance Summary Tab -->
             <div class="tab-pane fade" id="attendance-summary" role="tabpanel" aria-labelledby="attendance-summary-tab">
                 <h5 class="fw-semibold mb-3">Attendance Summary</h5>
-                {% if event.status in 'Ongoing' or event.status in 'Completed' %}
+                {% if event.status == 'Ongoing' or event.status == 'Completed' %}
                     <div class="table-responsive">
                         <table class="table table-striped table-bordered">
                             <thead class="table-light">
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Count</th>
-                                    <th>Percentage</th>
-                                </tr>
+                                <tr><th>Category</th><th>Count</th><th>Percentage</th></tr>
                             </thead>
                             <tbody>
                                 <tr>
@@ -273,6 +335,7 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <a href="{% url 'download_attendance_sheet' event.id %}" class="btn btn-success mt-2">Download Attendance Sheet</a>
                     </div>
                     <p class="mt-3">Total Attendees: {{ attendees|length }}</p>
                 {% else %}
@@ -282,10 +345,122 @@
 
             <!-- Scan QR Tab -->
             <div class="tab-pane fade" id="scan-qr" role="tabpanel" aria-labelledby="scan-qr-tab">
-                <h5 class="fw-semibold mb-3">Scan QR Code</h5>
+                <h5 class="fw-semibold mb-3 text-center">Scan QR Code</h5>
                 <div id="qr-reader"></div>
                 <div id="qr-result" class="qr-result">
                     <p>Scan a QR code to mark attendance.</p>
+                </div>
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <button id="start-scan" class="btn btn-primary">Start Scanning</button>
+                    <button id="stop-scan" class="btn btn-secondary" style="display: none;">Stop Scanning</button>
+                </div>
+            </div>
+
+            <!-- Add Attendee Tab -->
+            <div class="tab-pane fade" id="add-attendee" role="tabpanel" aria-labelledby="add-attendee-tab">
+                <h5 class="fw-semibold mb-3">Add New Attendee</h5>
+                <form method="POST" action="{% url 'add_attendee' event.id %}" id="add-attendee-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="attendee_name" class="form-label">Attendee Name</label>
+                        <input type="text" class="form-control" id="attendee_name" name="attendee_name" maxlength="50" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="attendee_job_title" class="form-label">Job Title (Optional)</label>
+                        <input type="text" class="form-control" id="attendee_job_title" name="attendee_job_title" maxlength="50">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Attendee</button>
+                </form>
+                <div id="add-attendee-result" class="mt-3"></div>
+            </div>
+
+            <!-- Attendance Form Tab -->
+            <div class="tab-pane fade" id="attendance-form-tab-pane" role="tabpanel" aria-labelledby="attendance-form-tab">
+                <h5 class="fw-semibold mb-3">Mark Attendance</h5>
+                <form method="POST" action="{% url 'mark_manual_attendance' event.id %}" id="attendance-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="attendee_select" class="form-label">Select Attendee</label>
+                        <select class="form-control" id="attendee_select" name="attendee_id" required>
+                            <option value="">-- Select an Attendee --</option>
+                            {% for attendance in attendees %}
+                                <option value="{{ attendance.attendee.id }}">{{ attendance.attendee.attendee_name }} ({{ attendance.attendee.attendee_job_title|default:"N/A" }}) - {{ attendance.status }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="attend-btn">Attend</button>
+                </form>
+                <div id="attendance-form-result" class="mt-3"></div>
+            </div>
+
+            <!-- Event Materials Tab -->
+            <div class="tab-pane fade" id="materials" role="tabpanel" aria-labelledby="materials-tab">
+                <h5 class="fw-semibold mb-3">Upload Event Materials</h5>
+                <form method="post" enctype="multipart/form-data" class="mb-4">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="file" name="upload_file" accept="image/*,video/*" multiple class="form-control">
+                        <button type="submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+
+                <!-- Photos Section -->
+                <h6>
+                    <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#photosCollapse" aria-expanded="false" aria-controls="photosCollapse">
+                        Photos ({{ photos|length }})
+                    </button>
+                </h6>
+                <div class="collapse" id="photosCollapse">
+                    {% if photos %}
+                        <div class="row row-cols-1 row-cols-md-3 g-4">
+                            {% for photo in photos %}
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm">
+                                        <a href="{{ photo.file.url }}" data-lightbox="photos" data-title="{{ photo.file.name|cut:'event_materials/' }}">
+                                            <img src="{{ photo.thumbnail.url|default:photo.file.url }}" class="card-img-top" alt="{{ photo.file.name }}" style="object-fit: cover; height: 200px;">
+                                        </a>
+                                        <div class="card-body">
+                                            <h5 class="card-title text-truncate" title="{{ photo.file.name|cut:'event_materials/' }}">{{ photo.file.name|cut:"event_materials/" }}</h5>
+                                            <p class="card-text text-muted">Uploaded: {{ photo.uploaded_at|date:"Y-m-d H:i" }}</p>
+                                            <a href="{{ photo.file.url }}" download class="btn btn-sm btn-outline-secondary">Download</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No photos uploaded yet.</p>
+                    {% endif %}
+                </div>
+
+                <!-- Videos Section -->
+                <h6 class="mt-4">
+                    <button class="btn btn-link text-decoration-none p-0" type="button" data-bs-toggle="collapse" data-bs-target="#videosCollapse" aria-expanded="false" aria-controls="videosCollapse">
+                        Videos ({{ videos|length }})
+                    </button>
+                </h6>
+                <div class="collapse" id="videosCollapse">
+                    {% if videos %}
+                        <div class="row row-cols-1 row-cols-md-2 g-4">
+                            {% for video in videos %}
+                                <div class="col">
+                                    <div class="card h-100 shadow-sm">
+                                        <video class="card-img-top" controls preload="metadata" poster="{{ video.thumbnail.url|default:'' }}" style="height: 200px; object-fit: cover;">
+                                            <source src="{{ video.file.url }}" type="video/mp4">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                        <div class="card-body">
+                                            <h5 class="card-title text-truncate" title="{{ video.file.name|cut:'event_materials/' }}">{{ video.file.name|cut:"event_materials/" }}</h5>
+                                            <p class="card-text text-muted">Uploaded: {{ video.uploaded_at|date:"Y-m-d H:i" }}</p>
+                                            <a href="{{ video.file.url }}" download class="btn btn-sm btn-outline-secondary">Download</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No videos uploaded yet.</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -310,16 +485,19 @@
         </div>
     </div>
 </div>
+
+<!-- Lightbox2 CSS and JS -->
+<link rel="stylesheet" href="{% static 'lightbox2/css/lightbox.min.css' %}">
+<script src="{% static 'lightbox2/js/lightbox.min.js' %}"></script>
 {% endblock %}
 
 {% block extra_js %}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Load Google Fonts for Arabic support -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400&display=swap" rel="stylesheet">
-    <!-- Ensure Bootstrap's JS for tabs and modal -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Load html5-qrcode library for QR scanning -->
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -336,140 +514,214 @@
             return cookieValue;
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const qrReader = new Html5Qrcode("qr-reader");
-            let cameraStarted = false;
-            let scannedQrCode = null;
+        $(document).ready(function () {
+            console.log("Document ready, jQuery version:", $.fn.jquery);
 
-            const scanQrTab = document.getElementById('scan-qr-tab');
-            const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
-            const confirmBtn = document.getElementById('confirmAttendanceBtn');
+            // Toggle Edit/Save Button
+            $('.toggle-btn').on('click', function(e) {
+    e.preventDefault();
+    const $btn = $(this);
+    const $row = $btn.closest('tr');
+    const $form = $btn.closest('form');
 
-            scanQrTab.addEventListener('shown.bs.tab', function () {
-                if (!cameraStarted) {
-                    console.log("Attempting to start QR scanner...");
-                    qrReader.getCameras().then(cameras => {
-                        console.log("Available cameras:", cameras);
-                        if (cameras.length === 0) {
-                            document.getElementById('qr-result').innerHTML = `<p>Error: No cameras found on this device.</p>`;
-                            return;
-                        }
-                        qrReader.start(
-                            { facingMode: "environment" },
-                            { fps: 10, qrbox: { width: 250, height: 250 } },
-                            (decodedText, decodedResult) => {
-                                console.log("QR code scanned:", decodedText);
-                                scannedQrCode = decodedText;
-                                document.getElementById('qr-result').innerHTML = `<p>QR Code Scanned: ${decodedText}</p>`;
-                                qrReader.stop().then(() => {
-                                    cameraStarted = false;
-                                    console.log("QR scanner stopped after successful scan");
-                                    // Fetch attendee name to display in modal
-                                    fetchAttendeeName(decodedText);
-                                }).catch(err => {
-                                    console.error("Error stopping QR scanner:", err);
-                                });
-                            },
-                            (errorMessage) => {
-                                console.log("Scan error:", errorMessage);
-                            }
-                        ).then(() => {
-                            cameraStarted = true;
-                            console.log("QR scanner started successfully");
-                        }).catch(err => {
-                            console.error("Error starting QR scanner:", err);
-                            document.getElementById('qr-result').innerHTML = `<p>Error: Could not access camera. ${err.message || err}</p>`;
-                        });
-                    }).catch(err => {
-                        console.error("Error accessing cameras:", err);
-                        document.getElementById('qr-result').innerHTML = `<p>Error: Could not access cameras. ${err.message || err}</p>`;
-                    });
-                }
+    if ($btn.data('state') === 'edit') {
+        $row.addClass('edit-mode');
+        $btn.text('Save').data('state', 'save');
+    } else {
+        const name = $row.find('input[name="attendee_name"]').val().trim();
+        const job_title = $row.find('input[name="attendee_job_title"]').val().trim();
+        console.log('Input Values: name=' + name + ', job_title=' + job_title);
+        $form.find('.attendee-name-hidden').val(name);
+        $form.find('.attendee-job-title-hidden').val(job_title);
+        console.log('Hidden Values: name=' + $form.find('.attendee-name-hidden').val() + ', job_title=' + $form.find('.attendee-job-title-hidden').val());
+        $form.submit();
+    }
+});
+
+            // Initialize Select2 for QR Download and Attendance Form
+            $('#attendee_select_qr').select2({
+                placeholder: "-- Select Attendees (Leave blank for all) --",
+                allowClear: true,
+                width: '100%',
+                multiple: true
             });
 
-            scanQrTab.addEventListener('hidden.bs.tab', function () {
-                if (cameraStarted) {
-                    console.log("Stopping QR scanner...");
-                    qrReader.stop().then(() => {
-                        cameraStarted = false;
-                        console.log("QR scanner stopped successfully");
-                    }).catch(err => {
-                        console.error("Error stopping QR scanner:", err);
-                    });
-                }
+            $('#attendee_select').select2({
+                placeholder: "-- Select an Attendee --",
+                allowClear: true,
+                width: '100%'
+            });
+
+            // QR Scanning Logic
+            const html5QrCode = new Html5Qrcode("qr-reader");
+            const $startButton = $("#start-scan");
+            const $stopButton = $("#stop-scan");
+            const $resultDiv = $("#qr-result");
+            const modal = new bootstrap.Modal(document.getElementById('attendanceModal'));
+            const $confirmBtn = $("#confirmAttendanceBtn");
+            let scannedQrCode = null;
+
+            $startButton.on("click", function () {
+                console.log("Starting QR scanner...");
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        console.log("QR code scanned:", decodedText);
+                        scannedQrCode = decodedText;
+                        $resultDiv.html(`<p>QR Code Scanned: ${decodedText}</p>`);
+                        html5QrCode.stop().then(() => {
+                            $startButton.show();
+                            $stopButton.hide();
+                            fetchAttendeeName(decodedText);
+                        }).catch(err => {
+                            console.error("Error stopping QR scanner:", err);
+                        });
+                    },
+                    (errorMessage) => {
+                        console.log("Scan error:", errorMessage);
+                    }
+                ).then(() => {
+                    $startButton.hide();
+                    $stopButton.show();
+                    $resultDiv.html("<p>Scanning...</p>");
+                }).catch(err => {
+                    console.error("Error starting QR scanner:", err);
+                    $resultDiv.html(`<p class="text-danger">Error starting camera: ${err.message || err}</p>`);
+                });
+            });
+
+            $stopButton.on("click", function () {
+                console.log("Stopping QR scanner...");
+                html5QrCode.stop().then(() => {
+                    $startButton.show();
+                    $stopButton.hide();
+                    $resultDiv.html("<p>Scan a QR code to mark attendance.</p>");
+                }).catch(err => {
+                    console.error("Error stopping QR scanner:", err);
+                });
             });
 
             function fetchAttendeeName(qrCode) {
-                fetch(`/event/{{ event.id }}/attendee_name/?qr_code=${encodeURIComponent(qrCode)}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
+                $.ajax({
+                    url: `/event/{{ event.id }}/attendee_name/?qr_code=${encodeURIComponent(qrCode)}`,
+                    method: "GET",
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (data) {
+                        if (data.success) {
+                            $("#modalAttendeeName").text(data.attendee_name);
+                            modal.show();
+                        } else {
+                            $resultDiv.append(`<p class="text-danger">Error: ${data.error}</p>`);
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error("Error fetching attendee name:", xhr);
+                        $resultDiv.append(`<p class="text-danger">Error: ${xhr.statusText}</p>`);
                     }
-                })
-                .then(response => {
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('modalAttendeeName').textContent = data.attendee_name;
-                        modal.show();
-                    } else {
-                        document.getElementById('qr-result').innerHTML += `<p>Error: ${data.error}</p>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching attendee name:', error);
-                    document.getElementById('qr-result').innerHTML += `<p>Error fetching attendee name: ${error.message}</p>`;
                 });
             }
 
-            confirmBtn.addEventListener('click', function () {
+            $confirmBtn.on("click", function () {
                 modal.hide();
                 markAttendance(scannedQrCode);
             });
 
             function markAttendance(qrCode) {
-                console.log("Marking attendance for QR code:", qrCode);
-                const csrfToken = getCookie('csrftoken');
-                if (!csrfToken) {
-                    console.error("CSRF token not found");
-                    document.getElementById('qr-result').innerHTML += `<p>Error: CSRF token not found.</p>`;
-                    return;
-                }
-                fetch(`/event/{{ event.id }}/mark_attendance/`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ qr_code: qrCode })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        console.error("HTTP error:", response.status, response.statusText);
-                        return response.text();
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (typeof data === 'string') {
-                        console.error("Received HTML response:", data.substring(0, 100));
-                        document.getElementById('qr-result').innerHTML += `<p>Error: Server returned an unexpected response.</p>`;
-                    } else {
-                        console.log("Attendance marking response:", data);
+                $.ajax({
+                    url: `/event/{{ event.id }}/mark_attendance/`,
+                    method: "POST",
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    data: JSON.stringify({ qr_code: qrCode }),
+                    contentType: "application/json",
+                    success: function (data) {
                         if (data.success) {
-                            document.getElementById('qr-result').innerHTML += `<p>Attendance marked for ${data.attendee_name} as ${data.status}.</p>`;
+                            $resultDiv.append(`<p class="text-success">Attendance marked for ${data.attendee_name} as ${data.status}.</p>`);
                         } else {
-                            document.getElementById('qr-result').innerHTML += `<p>Error: ${data.error}</p>`;
+                            $resultDiv.append(`<p class="text-danger">Error: ${data.error}</p>`);
                         }
+                    },
+                    error: function (xhr) {
+                        console.error("Error marking attendance:", xhr);
+                        $resultDiv.append(`<p class="text-danger">Error: ${xhr.statusText}</p>`);
                     }
-                })
-                .catch(error => {
-                    console.error('Error marking attendance:', error);
-                    document.getElementById('qr-result').innerHTML += `<p>Error marking attendance: ${error.message}</p>`;
                 });
             }
+
+            // Add Attendee Form Submission
+            $("#add-attendee-form").on("submit", function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const attendeeName = formData.get("attendee_name");
+                if (attendeeName.length > 50) {
+                    $("#add-attendee-result").html(`<p class="text-danger">Error: Name must be 50 characters or less</p>`);
+                    return;
+                }
+                $.ajax({
+                    url: this.action,
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (data) {
+                        const $resultDiv = $("#add-attendee-result");
+                        if (data.success) {
+                            $resultDiv.html(`<p class="text-success">Attendee ${data.attendee_name} added successfully!</p>`);
+                            $("#add-attendee-form")[0].reset();
+                        } else {
+                            $resultDiv.html(`<p class="text-danger">Error: ${data.error}</p>`);
+                        }
+                    },
+                    error: function (xhr) {
+                        $("#add-attendee-result").html(`<p class="text-danger">Error: ${xhr.statusText}</p>`);
+                    }
+                });
+            });
+
+            // Attendance Form Submission
+            $("#attendance-form").on("submit", function (e) {
+                e.preventDefault();
+                console.log("Attendance form submit event triggered");
+                const formData = new FormData(this);
+                const attendeeId = formData.get("attendee_id");
+                console.log("Attendee ID:", attendeeId);
+                const $resultDiv = $("#attendance-form-result");
+                if (!attendeeId) {
+                    $resultDiv.html(`<p class="text-danger">Error: Please select an attendee.</p>`);
+                    return;
+                }
+                console.log("Sending AJAX to:", this.action);
+                $.ajax({
+                    url: this.action,
+                    method: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: { "X-CSRFToken": getCookie("csrftoken") },
+                    success: function (data) {
+                        console.log("Raw success response:", data);
+                        try {
+                            const parsedData = typeof data === "string" ? JSON.parse(data) : data;
+                            console.log("Parsed success response:", parsedData);
+                            if (parsedData.success) {
+                                $resultDiv.html(`<p class="text-success">Attendance marked for ${parsedData.attendee_name} as ${parsedData.status}!</p>`);
+                                $("#attendance-form")[0].reset();
+                                $("#attendee_select").val("").trigger("change");
+                            } else {
+                                $resultDiv.html(`<p class="text-danger">Error: ${parsedData.error}</p>`);
+                            }
+                        } catch (e) {
+                            console.error("JSON parsing error:", e, "Raw data:", data);
+                            $resultDiv.html(`<p class="text-danger">Invalid response from server: ${data}</p>`);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error response:", xhr.status, xhr.statusText, xhr.responseText);
+                        $resultDiv.html(`<p class="text-danger">Error: ${xhr.statusText} (${xhr.status}) - ${xhr.responseText || 'No response'}</p>`);
+                    }
+                });
+            });
         });
     </script>
 {% endblock %}

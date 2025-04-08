@@ -4,7 +4,7 @@ from io import BytesIO
 import base64
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
-
+import django.utils.timezone
 from django.db import models
 import qrcode
 from io import BytesIO
@@ -37,6 +37,16 @@ class Attendee(models.Model):
     def __str__(self):
         return self.attendee_name
 
+
+def event_material_upload_path(instance, filename):
+    """Dynamic upload path based on event and file type."""
+    event_folder = f"event_{instance.event.id}"
+    if instance.file.name.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+        return f"event_materials/{event_folder}/photos/{now().strftime('%Y/%m/%d')}/{filename}"
+    elif instance.file.name.lower().endswith(('.mp4', '.avi', '.mov', '.wmv')):
+        return f"event_materials/{event_folder}/videos/{now().strftime('%Y/%m/%d')}/{filename}"
+    return f"event_materials/{event_folder}/other/{now().strftime('%Y/%m/%d')}/{filename}"
+
 class Event(models.Model):
     EVENT_STATUS_CHOICES = [
         ('Upcoming', 'Upcoming'),
@@ -44,15 +54,21 @@ class Event(models.Model):
         ('Completed', 'Completed'),
         ('Cancelled', 'Cancelled'),
     ]
-
     event_name = models.CharField(max_length=50, blank=False, null=False)
     event_description = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=EVENT_STATUS_CHOICES, default='Upcoming')
-    attendees = models.ManyToManyField(Attendee, related_name="events", through="Attendance")  # Many-to-Many Relation
+    attendees = models.ManyToManyField('Attendee', related_name="events", through="Attendance")
 
     def __str__(self):
         return self.event_name
 
+class EventMaterial(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='materials')
+    file = models.FileField(upload_to=event_material_upload_path, blank=False, null=False)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.event.event_name} - {self.file.name}"
 
 class EventDateTime(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="event_dates")
